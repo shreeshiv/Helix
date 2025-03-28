@@ -8,7 +8,7 @@ interface MessageListProps {
   messages: Message[];
   onRegenerate: (messageId: number, workspace: string) => void;
   workspace: string;
-  isLoading?: boolean;
+  isLoading: boolean;
   setInputText: (text: string) => void;
   handleSend: () => void;
 }
