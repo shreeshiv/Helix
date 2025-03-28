@@ -1,10 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Home, Users, MessageSquare, History, Plus, Command, Settings, Briefcase, GraduationCap } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useSearchMode } from "@/contexts/search-mode-context";
+import { useEffect } from "react";
 
 const routes = [
   {
@@ -55,7 +56,29 @@ const searchModes: SearchMode[] = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const router = useRouter();
   const { activeSearchModes, toggleSearchMode } = useSearchMode();
+
+  const handleNewSequence = () => {
+    if (pathname !== '/') {
+      router.push('/');
+    }
+
+    const event = new CustomEvent('new-sequence');
+    window.dispatchEvent(event);
+  };
+
+  const handleKeyboardShortcut = (e: KeyboardEvent) => {
+    if (e.key === 'k' && (e.metaKey || e.ctrlKey)) {
+      e.preventDefault();
+      handleNewSequence();
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener('keydown', handleKeyboardShortcut);
+    return () => window.removeEventListener('keydown', handleKeyboardShortcut);
+  }, []);
 
   return (
     <div className="space-y-4 py-4 flex flex-col h-full bg-zinc-900/50 text-zinc-100">
@@ -68,7 +91,10 @@ export function Sidebar() {
         </div>
         <div className="space-y-1">
           <div className="mb-4">
-            <button className="flex items-center w-full p-3 text-sm font-medium rounded-lg bg-blue-600 hover:bg-blue-700 transition">
+            <button 
+              onClick={handleNewSequence}
+              className="flex items-center w-full p-3 text-sm font-medium rounded-lg bg-blue-600 hover:bg-blue-700 transition"
+            >
               <Plus className="h-4 w-4 mr-2" />
               New Sequence
               <kbd className="ml-auto text-xs text-blue-200 font-mono">

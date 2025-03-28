@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { WelcomeView } from "@/components/chat/welcome-view";
 import { ChatInput } from "@/components/chat/chat-input";
 import { MessageList } from "@/components/chat/message-list";
@@ -200,6 +200,30 @@ export default function Home() {
     );
   };
 
+  useEffect(() => {
+    const handleNewSequence = () => {
+      // Clear messages
+      setMessages([]);
+      
+      // Clear input text
+      setInputText("");
+      
+      // Clear selected image if any
+      setSelectedImage(null);
+      
+      // Clear workspace content
+      handleContentUpdate("");
+    };
+
+    // Add event listener
+    window.addEventListener('new-sequence', handleNewSequence);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener('new-sequence', handleNewSequence);
+    };
+  }, []); // Empty dependency array since we're only using setState functions
+
   return (
     <div className="flex h-screen bg-zinc-900">
       {/* Left Panel - Chat Interface */}
@@ -211,6 +235,8 @@ export default function Home() {
               onRegenerate={handleRegenerate}
               workspace={activeSequenceId}
               isLoading={isLoading}
+              setInputText={setInputText}
+              handleSend={handleSend}
             />
           </div>
         </div>

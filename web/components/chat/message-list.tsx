@@ -1,6 +1,7 @@
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Message, Citation } from "@/types/chat";
 import { MessageActions } from "./message-actions";
+import { WelcomeView } from "./welcome-view";
 import { toast } from "sonner";
 
 interface MessageListProps {
@@ -8,9 +9,11 @@ interface MessageListProps {
   onRegenerate: (messageId: number, workspace: string) => void;
   workspace: string;
   isLoading?: boolean;
+  setInputText: (text: string) => void;
+  handleSend: () => void;
 }
 
-export function MessageList({ messages, onRegenerate, workspace, isLoading }: MessageListProps) {
+export function MessageList({ messages, onRegenerate, workspace, isLoading, setInputText, handleSend }: MessageListProps) {
   const handleCopy = async (text: string) => {
     try {
       await navigator.clipboard.writeText(text);
@@ -44,6 +47,19 @@ export function MessageList({ messages, onRegenerate, workspace, isLoading }: Me
     toast.success("Thanks for your feedback!");
     // Implement feedback handling logic here
   };
+
+  if (messages.length === 0 && !isLoading) {
+    return (
+      <WelcomeView
+        inputText=""
+        setInputText={setInputText}
+        handleSend={handleSend}
+        isLoading={isLoading}
+        setSelectedImage={() => {}}
+        selectedImage={null}
+      />
+    );
+  }
 
   return (
     <div className="flex-1 overflow-y-auto p-4">

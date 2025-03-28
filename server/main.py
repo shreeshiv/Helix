@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, UploadFile, File, Form
+from fastapi import FastAPI, HTTPException, UploadFile, File, Form, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any
@@ -110,22 +110,29 @@ async def shutdown():
 def get_user_details(user_id: str) -> dict:
     # TODO: Replace with actual database query
     return {
-        "name": "John Doe",
-        "title": "Technical Recruiter",
-        "company": "TechCorp Inc.",
-        "email": "john.doe@techcorp.com",
-        "linkedin": "linkedin.com/in/johndoe"
+        "name": "Shreeshiv",
+        "title": "Hiring manager",
+        "company": "SellScale",
+        "email": "shreeshiv@sellscale.com",
+        "linkedin": "linkedin.com/in/shreeshiv"
     }
 
 def get_organization_details(org_id: str) -> dict:
     # TODO: Replace with actual database query
     return {
-        "name": "TechCorp Inc.",
-        "industry": "Technology",
-        "description": "Leading software development company specializing in AI and machine learning solutions",
-        "website": "techcorp.com",
-        "locations": ["San Francisco", "New York", "London"],
-        "company_size": "500-1000 employees"
+        "name": "SellScale",
+        "industry": "Sales Technology",
+        "description": "SellScale helps businesses grow with Artificial General Intelligence, providing agentic prospecting solutions. We specialize in outbound sales automation, email deliverability, and AI-powered personalization.",
+        "website": "sellscale.com",
+        "locations": ["San Francisco"],
+        "company_size": "11-50 employees",
+        "features": [
+            "AI-powered prospecting",
+            "Email deliverability optimization",
+            "Contact enrichment from multiple data sources",
+            "Personalized messaging at scale",
+            "Sales infrastructure setup"
+        ]
     }
 
 # Update the chat endpoint to include user and org context
@@ -391,3 +398,87 @@ async def get_org_sequences(org_id: str):
     except Exception as e:
         print(f"Error retrieving sequences: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to retrieve sequences: {str(e)}")
+
+# Add new endpoint with pagination and sorting
+@app.get("/api/sequences", response_model=List[SequenceResponse])
+async def get_sequences(
+    page: int = Query(1, ge=1),
+    limit: int = Query(10, ge=1, le=100),
+    sort_by: str = Query("created_at", regex="^(created_at|updated_at|name)$"),
+    order: str = Query("desc", regex="^(asc|desc)$"),
+    user_id: Optional[str] = None,
+    org_id: Optional[str] = None
+):
+    try:
+        offset = (page - 1) * limit
+        
+        # Build the base query
+        query = sequences.select()
+        
+        # Add filters if provided
+        if user_id:
+            query = query.where(sequences.c.user_id == user_id)
+        if org_id:
+            query = query.where(sequences.c.org_id == org_id)
+        
+        # Add sorting
+        if order == "desc":
+            query = query.order_by(getattr(sequences.c, sort_by).desc())
+        else:
+            query = query.order_by(getattr(sequences.c, sort_by).asc())
+        
+        # Add pagination
+        query = query.offset(offset).limit(limit)
+        
+        results = await database.fetch_all(query)
+        
+        return [
+            {
+                "id": result["id"],
+                "user_id": result["user_id"],
+                "org_id": result["org_id"],
+                "name": result["name"],
+                "content": result["content"],
+                "messages": result["messages"],
+                "created_at": result["created_at"],
+                "updated_at": result["updated_at"]
+            }
+            for result in results
+        ]
+    
+    except Exception as e:
+        print(f"Error retrieving sequences: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to retrieve sequences: {str(e)}")
+
+# Add endpoint to get total count
+@app.get("/api/sequences/count")
+async def get_sequences_count(
+    user_id: Optional[str] = None,
+    org_id: Optional[str] = None
+):
+    try:
+        query = sa.select([sa.func.count()]).select_from(sequences)
+        
+        if user_id:
+            query = query.where(sequences.c.user_id == user_id)
+        if org_id:
+            query = query.where(sequences.c.org_id == org_id)
+            
+        count = await database.fetch_val(query)
+        return {"total": count}
+    
+    except Exception as e:
+        print(f"Error getting sequence count: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get sequence count: {str(e)}")
+
+# Add endpoint to delete a sequence
+@app.delete("/api/sequences/{sequence_id}")
+async def delete_sequence(sequence_id: str):
+    try:
+        query = sequences.delete().where(sequences.c.id == sequence_id)
+        await database.execute(query)
+        return {"message": "Sequence deleted successfully"}
+    
+    except Exception as e:
+        print(f"Error deleting sequence: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to delete sequence: {str(e)}")
