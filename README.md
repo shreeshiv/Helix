@@ -43,7 +43,7 @@ Built as part of a take-home challenge, this project showcases an MVP of the Hel
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/[your-username]/helix.git
+git clone https://github.com/shreeshiv/helix.git
 cd helix
 ```
 
