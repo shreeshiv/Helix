@@ -14,24 +14,17 @@ Built as part of a take-home challenge, this project showcases an MVP of the Hel
 
 ---
 
-## 🖼 Screenshots
-
-_(Placeholder - replace with actual screenshots when available)_
-
 ## 💠 Tech Stack
 
 ### Frontend
 
 - **React** (TypeScript)
 - **TailwindCSS** for UI styling
-- **Socket.IO** for live updates
-- **shadcn/ui**, **Lucide**, and **Recharts** for components and visual polish
 
 ### Backend
 
 - **Flask** (Python)
 - **PostgreSQL** for relational data
-- **Langchain** for agentic orchestration
 - **OpenAI API** for LLM responses
 
 ---
@@ -44,7 +37,6 @@ _(Placeholder - replace with actual screenshots when available)_
 - Python 3.9+
 - PostgreSQL
 - API Key for OpenAI
-- Optional: Pinecone or Chroma if using vector memory
 
 ### Installation
 
