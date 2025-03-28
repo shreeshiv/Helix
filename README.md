@@ -23,7 +23,7 @@ Built as part of a take-home challenge, this project showcases an MVP of the Hel
 
 ### Backend
 
-- **Flask** (Python)
+- **FastAPI** (Python)
 - **PostgreSQL** for relational data
 - **OpenAI API** for LLM responses
 
@@ -125,4 +125,4 @@ Licensed under the MIT License. See `LICENSE` for details.
 
 ## 📬 Contact
 
-For questions or collaboration, reach out to [your email or GitHub profile].
+patelshreeshiv@gmail.com
